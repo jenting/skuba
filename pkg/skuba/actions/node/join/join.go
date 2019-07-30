@@ -111,7 +111,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 // FIXME: being this a part of the go API accept the toplevel directory instead of
 //        using the PWD
 func ConfigPath(role deployments.Role, target *deployments.Target) (string, error) {
-	configPath := skuba.MachineConfFile(target.Target)
+	configPath := skuba.MachineConfFile(target.Hostname)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		configPath = skuba.TemplatePathForRole(role)
 	}
@@ -120,7 +120,7 @@ func ConfigPath(role deployments.Role, target *deployments.Target) (string, erro
 	if err != nil {
 		return "", errors.Wrap(err, "error parsing configuration")
 	}
-	addFreshTokenToJoinConfiguration(target.Target, joinConfiguration)
+	addFreshTokenToJoinConfiguration(target.Hostname, joinConfiguration)
 	addTargetInformationToJoinConfiguration(target, role, joinConfiguration)
 	if cloud.HasCloudIntegration() {
 		if !cloud.ConfigHasRestrictedPermissions(skuba.OpenstackCloudConfFile()) {
@@ -140,11 +140,11 @@ func ConfigPath(role deployments.Role, target *deployments.Target) (string, erro
 		return "", errors.Wrap(err, "could not marshal configuration")
 	}
 
-	if err := ioutil.WriteFile(skuba.MachineConfFile(target.Target), finalJoinConfigurationContents, 0600); err != nil {
+	if err := ioutil.WriteFile(skuba.MachineConfFile(target.Hostname), finalJoinConfigurationContents, 0600); err != nil {
 		return "", errors.Wrap(err, "error writing specific machine configuration")
 	}
 
-	return skuba.MachineConfFile(target.Target), nil
+	return skuba.MachineConfFile(target.Hostname), nil
 }
 
 func addFreshTokenToJoinConfiguration(target string, joinConfiguration *kubeadmapi.JoinConfiguration) error {

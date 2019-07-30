@@ -82,44 +82,46 @@ var (
 	}
 )
 
+type Config struct {
+	user     string
+	hostname string
+	sudo     bool
+	port     int
+}
+
 type Target struct {
-	target     *deployments.Target
-	user       string
-	targetName string
-	sudo       bool
-	port       int
-	client     *ssh.Client
+	cfg    Config
+	target *deployments.Target
+	client *ssh.Client
 }
 
 // GetFlags adds init flags bound to the config to the specified flagset
-func (t *Target) GetFlags() *flag.FlagSet {
+func (c *Config) GetFlags() *flag.FlagSet {
 	flagSet := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	flagSet.StringVarP(&t.user, "user", "u", "root", "User identity used to connect to target")
-	flagSet.BoolVarP(&t.sudo, "sudo", "s", false, "Run remote command via sudo")
-	flagSet.IntVarP(&t.port, "port", "p", 22, "Port to connect to using SSH")
-	flagSet.StringVarP(&t.targetName, "target", "t", "", "IP or FQDN of the node to connect to using SSH (required)")
+	flagSet.StringVarP(&c.user, "user", "u", "root", "User identity used to connect to target")
+	flagSet.BoolVarP(&c.sudo, "sudo", "s", false, "Run remote command via sudo")
+	flagSet.IntVarP(&c.port, "port", "p", 22, "Port to connect to using SSH")
+	flagSet.StringVarP(&c.hostname, "target", "t", "", "IP or FQDN of the node to connect to using SSH (required)")
 
 	_ = cobra.MarkFlagRequired(flagSet, "target")
 
 	return flagSet
 }
 
-func (t Target) String() string {
-	return fmt.Sprintf("%s@%s:%d", t.user, t.target.Target, t.port)
-}
-
-func (t *Target) GetDeployment(nodename string) *deployments.Target {
-	res := deployments.Target{
-		Target:   t.targetName,
+func NewDeployment(cfg Config, nodename string) *deployments.Target {
+	res := &deployments.Target{
+		Hostname: cfg.hostname,
 		Nodename: nodename,
 	}
 	res.Actionable = &Target{
-		target: &res,
-		user:   t.user,
-		sudo:   t.sudo,
-		port:   t.port,
+		cfg:    cfg,
+		target: res,
 	}
-	return &res
+	return res
+}
+
+func (t *Target) String() string {
+	return fmt.Sprintf("%s@%s:%d", t.cfg.user, t.target.Hostname, t.cfg.port)
 }
 
 func (t *Target) silentSsh(command string, args ...string) (stdout string, stderr string, error error) {
@@ -160,7 +162,7 @@ func (t *Target) internalSshWithStdin(silent bool, stdin string, command string,
 		return "", "", err
 	}
 	finalCommand := strings.Join(append([]string{command}, args...), " ")
-	if t.sudo {
+	if t.cfg.sudo {
 		finalCommand = fmt.Sprintf("sudo sh -c '%s'", finalCommand)
 	}
 	if !silent {
@@ -222,20 +224,20 @@ func (t *Target) initClient() error {
 	}
 
 	config := &ssh.ClientConfig{
-		User: t.user,
+		User: t.cfg.user,
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeysCallback(agentClient.Signers),
 		},
 		HostKeyCallback: hostKeyCallback,
 	}
 
-	t.client, err = ssh.Dial("tcp", fmt.Sprintf("%s:%d", t.target.Target, t.port), config)
+	t.client, err = ssh.Dial("tcp", fmt.Sprintf("%s:%d", t.target.Hostname, t.cfg.port), config)
 	if err != nil {
 		// crypto/ssh does not provide constants for some common errors, so we
 		// must "pattern match" the error strings in order to guess what failed
 		if strings.Contains(err.Error(), "unable to authenticate") {
 			klog.Errorf("ssh authentication error: please make sure you have added to "+
-				"your ssh-agent a ssh key that is authorized in %q.", t.target.Target)
+				"your ssh-agent a ssh key that is authorized in %q.", t.target.Hostname)
 			return errSSHAuthErr
 		}
 		return err
@@ -247,7 +249,7 @@ func (t *Target) initClient() error {
 // if not present, it warns user (optionally asking for the key to be accepted or not)
 // adding the key to the `known_hosts` file. In case the key is found but there is a
 // mismatch (or the key has been rejected), it returns an error.
-func (t Target) hostKeyChecker() (ssh.HostKeyCallback, error) {
+func (t *Target) hostKeyChecker() (ssh.HostKeyCallback, error) {
 	// make sure the filename exists from the start
 	err := os.MkdirAll(path.Dir(defKnowHosts), 0700)
 	if err != nil {

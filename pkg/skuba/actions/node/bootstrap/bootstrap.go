@@ -134,14 +134,14 @@ func Bootstrap(bootstrapConfiguration deployments.BootstrapConfiguration, target
 		return err
 	}
 
-	fmt.Printf("[bootstrap] successfully bootstrapped node %q with Kubernetes: %q\n", target.Target, versionToDeploy.String())
+	fmt.Printf("[bootstrap] successfully bootstrapped node %q with Kubernetes: %q\n", target.Hostname, versionToDeploy.String())
 	return nil
 }
 
 func downloadSecrets(target *deployments.Target) error {
 	os.MkdirAll(filepath.Join("pki", "etcd"), 0700)
 
-	fmt.Printf("[bootstrap] downloading secrets from bootstrapped node %q\n", target.Target)
+	fmt.Printf("[bootstrap] downloading secrets from bootstrapped node %q\n", target.Hostname)
 	for _, secretLocation := range deployments.Secrets {
 		secretData, err := target.DownloadFileContents(filepath.Join("/etc/kubernetes", secretLocation))
 		if err != nil {

@@ -35,7 +35,7 @@ type joinOptions struct {
 // NewBootstrapCmd creates a new `skuba node join` cobra command
 func NewJoinCmd() *cobra.Command {
 	joinOptions := joinOptions{}
-	target := ssh.Target{}
+	sshCfg := ssh.Config{}
 
 	cmd := &cobra.Command{
 		Use:   "join <node-name>",
@@ -47,14 +47,14 @@ func NewJoinCmd() *cobra.Command {
 
 			joinConfiguration.Role = deployments.MustGetRoleFromString(joinOptions.role)
 
-			if err := node.Join(joinConfiguration, target.GetDeployment(nodenames[0])); err != nil {
+			if err := node.Join(joinConfiguration, ssh.NewDeployment(sshCfg, nodenames[0])); err != nil {
 				klog.Fatalf("error joining node %s: %s", nodenames[0], err)
 			}
 		},
 		Args: cobra.ExactArgs(1),
 	}
 
-	cmd.Flags().AddFlagSet(target.GetFlags())
+	cmd.Flags().AddFlagSet(sshCfg.GetFlags())
 	cmd.Flags().StringVarP(&joinOptions.role, "role", "r", "", "Role that this node will have in the cluster (master|worker) (required)")
 
 	actions.AddCommonFlags(cmd, &joinOptions.ignorePreflightErrors)

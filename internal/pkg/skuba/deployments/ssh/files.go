@@ -20,10 +20,20 @@ package ssh
 import (
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"path"
 
+	"github.com/pkg/errors"
 	"k8s.io/klog"
 )
+
+func (t *Target) UploadFile(sourcePath, targetPath string) error {
+	klog.V(1).Infof("uploading local file %q to remote file %q", sourcePath, targetPath)
+	if contents, err := ioutil.ReadFile(sourcePath); err == nil {
+		return t.UploadFileContents(targetPath, string(contents))
+	}
+	return errors.New(fmt.Sprintf("could not find file %s", sourcePath))
+}
 
 func (t *Target) UploadFileContents(targetPath, contents string) error {
 	klog.V(1).Infof("uploading to remote file %q with contents", targetPath)

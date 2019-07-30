@@ -34,7 +34,7 @@ type bootstrapOptions struct {
 // NewBootstrapCmd creates a new `skuba node bootstrap` cobra command
 func NewBootstrapCmd() *cobra.Command {
 	bootstrapOptions := bootstrapOptions{}
-	target := ssh.Target{}
+	sshCfg := ssh.Config{}
 
 	cmd := cobra.Command{
 		Use:   "bootstrap <node-name>",
@@ -44,15 +44,14 @@ func NewBootstrapCmd() *cobra.Command {
 				KubeadmExtraArgs: map[string]string{"ignore-preflight-errors": bootstrapOptions.ignorePreflightErrors},
 			}
 
-			d := target.GetDeployment(nodenames[0])
-			if err := node.Bootstrap(bootstrapConfiguration, d); err != nil {
+			if err := node.Bootstrap(bootstrapConfiguration, ssh.NewDeployment(sshCfg, nodenames[0])); err != nil {
 				klog.Fatalf("error bootstraping node: %s", err)
 			}
 		},
 		Args: cobra.ExactArgs(1),
 	}
 
-	cmd.Flags().AddFlagSet(target.GetFlags())
+	cmd.Flags().AddFlagSet(sshCfg.GetFlags())
 	actions.AddCommonFlags(&cmd, &bootstrapOptions.ignorePreflightErrors)
 	return &cmd
 }

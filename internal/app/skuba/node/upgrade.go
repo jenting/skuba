@@ -57,18 +57,18 @@ func newUpgradePlanCmd() *cobra.Command {
 }
 
 func newUpgradeApplyCmd() *cobra.Command {
-	target := ssh.Target{}
+	sshCfg := ssh.Config{}
 	cmd := cobra.Command{
 		Use:   "apply",
 		Short: "Apply node upgrade",
 		Run: func(cmd *cobra.Command, args []string) {
-			if err := upgrade.Apply(target.GetDeployment("")); err != nil {
+			if err := upgrade.Apply(ssh.NewDeployment(sshCfg, "")); err != nil {
 				fmt.Printf("Unable to apply node upgrade: %s\n", err)
 				os.Exit(1)
 			}
 		},
 		Args: cobra.NoArgs,
 	}
-	cmd.Flags().AddFlagSet(target.GetFlags())
+	cmd.Flags().AddFlagSet(sshCfg.GetFlags())
 	return &cmd
 }

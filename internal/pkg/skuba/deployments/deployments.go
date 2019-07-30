@@ -17,16 +17,9 @@
 
 package deployments
 
-import (
-	"errors"
-	"fmt"
-	"io/ioutil"
-
-	"k8s.io/klog"
-)
-
 type Actionable interface {
 	Apply(data interface{}, states ...string) error
+	UploadFile(sourcePath, targetPath string) error
 	UploadFileContents(targetPath, contents string) error
 	DownloadFileContents(sourcePath string) (string, error)
 	IsServiceEnabled(serviceName string) (bool, error)
@@ -38,7 +31,7 @@ type TargetCache struct {
 
 type Target struct {
 	Actionable
-	Target   string
+	Hostname string
 	Nodename string
 	Cache    TargetCache
 }
@@ -56,11 +49,7 @@ func (t *Target) Apply(data interface{}, states ...string) error {
 }
 
 func (t *Target) UploadFile(sourcePath, targetPath string) error {
-	klog.V(1).Infof("uploading local file %q to remote file %q", sourcePath, targetPath)
-	if contents, err := ioutil.ReadFile(sourcePath); err == nil {
-		return t.UploadFileContents(targetPath, string(contents))
-	}
-	return errors.New(fmt.Sprintf("could not find file %s", sourcePath))
+	return t.Actionable.UploadFile(sourcePath, targetPath)
 }
 
 func (t *Target) UploadFileContents(targetPath, contents string) error {

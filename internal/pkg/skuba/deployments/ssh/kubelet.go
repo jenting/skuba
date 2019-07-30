@@ -19,7 +19,6 @@ package ssh
 
 import (
 	"github.com/SUSE/skuba/internal/pkg/skuba/deployments/ssh/assets"
-
 	"github.com/SUSE/skuba/pkg/skuba"
 	"github.com/SUSE/skuba/pkg/skuba/cloud"
 )

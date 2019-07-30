@@ -96,7 +96,7 @@ func Apply(target *deployments.Target) error {
 				return err
 			}
 
-			fmt.Printf("Performing node %s (%s) upgrade, please wait...\n", target.Nodename, target.Target)
+			fmt.Printf("Performing node %s (%s) upgrade, please wait...\n", target.Nodename, target.Hostname)
 
 			if skubaUpdateWasEnabled {
 				err = target.Apply(nil, "skuba-update.stop")
@@ -168,7 +168,7 @@ func Apply(target *deployments.Target) error {
 			}
 		}
 		if upgradeable {
-			fmt.Printf("Performing node %s (%s) upgrade, please wait...\n", target.Nodename, target.Target)
+			fmt.Printf("Performing node %s (%s) upgrade, please wait...\n", target.Nodename, target.Hostname)
 
 			if skubaUpdateWasEnabled {
 				err = target.Apply(nil, "skuba-update.stop")
@@ -221,7 +221,7 @@ func Apply(target *deployments.Target) error {
 		}
 	}
 
-	fmt.Printf("Node %s (%s) successfully upgraded\n", target.Nodename, target.Target)
+	fmt.Printf("Node %s (%s) successfully upgraded\n", target.Nodename, target.Hostname)
 
 	return nil
 }
