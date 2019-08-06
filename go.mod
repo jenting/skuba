@@ -1,6 +1,7 @@
 module github.com/SUSE/skuba
 
 require (
+	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf
 	github.com/coreos/go-oidc v0.0.0-20180117170138-065b426bd416
 	github.com/go-yaml/yaml v2.1.0+incompatible
 	github.com/onsi/ginkgo v1.6.0
@@ -11,6 +12,7 @@ require (
 	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 	golang.org/x/net v0.0.0-20190311183353-d8887717615a
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
+	gopkg.in/square/go-jose.v2 v2.0.0-20180411045311-89060dee6a84
 	k8s.io/api v0.0.0
 	k8s.io/apimachinery v0.0.0
 	k8s.io/client-go v0.0.0

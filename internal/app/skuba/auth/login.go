@@ -103,6 +103,7 @@ func NewLoginCmd() *cobra.Command {
 	cmd.Flags().BoolVarP(&cfg.InsecureSkipVerify, "insecure", "k", false, "insecure SSL connection")
 	cmd.Flags().StringVarP(&cfg.ClusterName, "cluster-name", "n", "local", "kubernetes cluster name")
 	cmd.Flags().StringVarP(&cfg.KubeConfigPath, "kubeconfig", "c", "kubeconf.txt", "kubeconfig path")
+	cmd.Flags().StringVarP(&cfg.KubeAPIServer, "kube-apiserver", "a", "", "kube apiserver url")
 	cmd.Flags().BoolVarP(&cfg.Debug, "debug", "d", false, "debug")
 
 	// Disable sorting of flags
