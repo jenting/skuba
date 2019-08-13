@@ -15,10 +15,10 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
-	"github.com/SUSE/skuba/internal/pkg/skuba/deployments/ssh/assets"
+	"github.com/SUSE/skuba/internal/pkg/skuba/deployments/assets"
 	"github.com/SUSE/skuba/pkg/skuba"
 	"github.com/SUSE/skuba/pkg/skuba/cloud"
 )
@@ -29,7 +29,7 @@ func init() {
 }
 
 func kubeletConfigure(t *Target, data interface{}) error {
-	isSUSE, err := t.target.IsSUSEOS()
+	isSUSE, err := t.IsSUSEOS()
 	if err != nil {
 		return err
 	}
@@ -53,19 +53,19 @@ func kubeletConfigure(t *Target, data interface{}) error {
 	}
 
 	if cloud.HasCloudIntegration() {
-		if err := t.target.UploadFile(skuba.OpenstackCloudConfFile(), skuba.OpenstackConfigRuntimeFile()); err != nil {
+		if err := t.UploadFile(skuba.OpenstackCloudConfFile(), skuba.OpenstackConfigRuntimeFile()); err != nil {
 			return err
 		}
-		if _, _, err = t.ssh("chmod", "0400", skuba.OpenstackConfigRuntimeFile()); err != nil {
+		if _, _, err = t.Do("chmod", "0400", skuba.OpenstackConfigRuntimeFile()); err != nil {
 			return err
 		}
 	}
 
-	_, _, err = t.ssh("systemctl", "daemon-reload")
+	_, _, err = t.Do("systemctl", "daemon-reload")
 	return err
 }
 
 func kubeletEnable(t *Target, data interface{}) error {
-	_, _, err := t.ssh("systemctl", "enable", "kubelet")
+	_, _, err := t.Do("systemctl", "enable", "kubelet")
 	return err
 }

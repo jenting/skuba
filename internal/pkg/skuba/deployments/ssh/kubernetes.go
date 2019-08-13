@@ -17,6 +17,7 @@
 
 package ssh
 
+/*
 import (
 	"fmt"
 	"path/filepath"
@@ -127,3 +128,4 @@ func kubernetesWaitForKubelet(t *Target, data interface{}) error {
 	}
 	return errors.Wrap(err, fmt.Sprintf("Timed out waiting for %s", t.target.Nodename))
 }
+*/

@@ -17,12 +17,25 @@
 
 package deployments
 
+import (
+	"fmt"
+
+	"github.com/pkg/errors"
+	"k8s.io/klog"
+)
+
+var (
+	stateMap = map[string]Runner{}
+)
+
+type Runner func(t *Target, data interface{}) error
+
 type Actionable interface {
-	Apply(data interface{}, states ...string) error
+	Do(command string, args ...string) (string, string, error)
+	SilentDo(command string, args ...string) (string, string, error)
 	UploadFile(sourcePath, targetPath string) error
 	UploadFileContents(targetPath, contents string) error
 	DownloadFileContents(sourcePath string) (string, error)
-	IsServiceEnabled(serviceName string) (bool, error)
 }
 
 type TargetCache struct {
@@ -37,15 +50,23 @@ type Target struct {
 }
 
 func (t *Target) Apply(data interface{}, states ...string) error {
-	filteredStates := []string{}
-	for _, s := range states {
-		if s == "" {
+	for _, stateName := range states {
+		if stateName == "" {
 			continue
 		}
-		filteredStates = append(filteredStates, s)
+
+		klog.V(1).Infof("=== applying state %s ===", stateName)
+		if state, stateExists := stateMap[stateName]; stateExists {
+			if err := state(t, data); err != nil {
+				return errors.Wrapf(err, "failed to apply state %s", stateName)
+			}
+			klog.V(1).Infof("=== state %s applied successfully ===", stateName)
+		} else {
+			return fmt.Errorf("state does not exist: %s", stateName)
+		}
 	}
 
-	return t.Actionable.Apply(data, filteredStates...)
+	return nil
 }
 
 func (t *Target) UploadFile(sourcePath, targetPath string) error {
@@ -58,8 +79,4 @@ func (t *Target) UploadFileContents(targetPath, contents string) error {
 
 func (t *Target) DownloadFileContents(sourcePath string) (string, error) {
 	return t.Actionable.DownloadFileContents(sourcePath)
-}
-
-func (t *Target) IsServiceEnabled(serviceName string) (bool, error) {
-	return t.Actionable.IsServiceEnabled(serviceName)
 }

@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"k8s.io/client-go/kubernetes/fake"
+	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
 )
 
 func Test_GenerateClientSecret(t *testing.T) {
@@ -57,34 +58,34 @@ func Test_GenerateClientSecret(t *testing.T) {
 
 func Test_CreateCert(t *testing.T) {
 	tests := []struct {
-		name                string
-		pkiPath             string
-		kubeadmInitConfPath string
-		expectedError       bool
+		name            string
+		pkiPath         string
+		kubeadmInitConf *kubeadmapi.InitConfiguration
+		expectedError   bool
 	}{
 		{
-			name:                "normal case",
-			pkiPath:             "testdata",
-			kubeadmInitConfPath: "testdata/kubeadm-init.conf",
+			name:            "normal case",
+			pkiPath:         "testdata",
+			kubeadmInitConf: &kubeadmapi.InitConfiguration{},
 		},
 		{
-			name:                "invalid pki path",
-			pkiPath:             "invalid-pki-path",
-			kubeadmInitConfPath: "testdata/kubeadm-init.conf",
-			expectedError:       true,
+			name:            "invalid pki path",
+			pkiPath:         "invalid-pki-path",
+			kubeadmInitConf: &kubeadmapi.InitConfiguration{},
+			expectedError:   true,
 		},
 		{
-			name:                "invalid kubeadm init path",
-			pkiPath:             "testdata",
-			kubeadmInitConfPath: "testdata/invalid-kubeadm-init-conf-path.conf",
-			expectedError:       true,
+			name:            "invalid kubeadm init conf",
+			pkiPath:         "testdata",
+			kubeadmInitConf: nil,
+			expectedError:   true,
 		},
 	}
 
 	for _, tt := range tests {
 		tt := tt // Parallel testing
 		t.Run(tt.name, func(t *testing.T) {
-			err := CreateCert(fake.NewSimpleClientset(), tt.pkiPath, tt.kubeadmInitConfPath)
+			err := CreateCert(fake.NewSimpleClientset(), tt.pkiPath, tt.kubeadmInitConf)
 			if tt.expectedError && err == nil {
 				t.Errorf("error expected on %s, but no error reported", tt.name)
 				return

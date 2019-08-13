@@ -24,13 +24,8 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/util/version"
 	"k8s.io/klog"
-	"k8s.io/kubernetes/cmd/kubeadm/app/images"
 
-	cilium "github.com/SUSE/skuba/internal/pkg/skuba/cni"
-	"github.com/SUSE/skuba/internal/pkg/skuba/dex"
-	"github.com/SUSE/skuba/internal/pkg/skuba/gangway"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
-	"github.com/SUSE/skuba/internal/pkg/skuba/kured"
 	"github.com/SUSE/skuba/pkg/skuba"
 	cluster "github.com/SUSE/skuba/pkg/skuba/actions/cluster/init"
 )
@@ -60,10 +55,11 @@ func NewInitCmd() *cobra.Command {
 				}
 			}
 
-			initConfig := cluster.InitConfiguration{
+			err := cluster.Init(cluster.InitConfiguration{
 				ClusterName:         args[0],
 				CloudProvider:       initOptions.CloudProvider,
 				ControlPlane:        initOptions.ControlPlane,
+				/*
 				PauseImage:          images.GetGenericImage(skuba.ImageRepository, "pause", kubernetes.ComponentVersionForClusterVersion(kubernetes.Pause, kubernetesVersion)),
 				CiliumImage:         cilium.GetCiliumImage(),
 				CiliumInitImage:     cilium.GetCiliumInitImage(),
@@ -72,14 +68,13 @@ func NewInitCmd() *cobra.Command {
 				DexImage:            dex.GetDexImage(),
 				GangwayClientSecret: dex.GenerateClientSecret(),
 				GangwayImage:        gangway.GetGangwayImage(),
+				*/
 				KubernetesVersion:   kubernetesVersion,
 				ImageRepository:     skuba.ImageRepository,
 				EtcdImageTag:        kubernetes.ComponentVersionForClusterVersion(kubernetes.Etcd, kubernetesVersion),
 				CoreDNSImageTag:     kubernetes.ComponentVersionForClusterVersion(kubernetes.CoreDNS, kubernetesVersion),
 				StrictCapDefaults:   initOptions.StrictCapDefaults,
-			}
-
-			err := cluster.Init(initConfig)
+			})
 			if err != nil {
 				klog.Fatalf("init failed due to error: %s", err)
 			}

@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"io/ioutil"
@@ -47,15 +47,15 @@ func kuredDeploy(t *Target, data interface{}) error {
 		return errors.Wrap(err, "could not read local kured directory")
 	}
 
-	defer t.ssh("rm -rf /tmp/kured.d")
+	defer t.Do("rm -rf /tmp/kured.d")
 
 	for _, f := range kuredFiles {
-		if err := t.target.UploadFile(filepath.Join(skuba.KuredDir(), f.Name()), filepath.Join("/tmp/kured.d", f.Name())); err != nil {
+		if err := t.UploadFile(filepath.Join(skuba.KuredDir(), f.Name()), filepath.Join("/tmp/kured.d", f.Name())); err != nil {
 			return err
 		}
 	}
 
-	_, _, err = t.ssh("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kured.d")
+	_, _, err = t.Do("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/kured.d")
 	return err
 }
 

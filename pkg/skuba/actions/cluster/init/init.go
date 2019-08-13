@@ -24,11 +24,11 @@ import (
 	"path/filepath"
 	"text/template"
 
+	"github.com/pkg/errors"
 	versionutil "k8s.io/apimachinery/pkg/util/version"
 	"k8s.io/klog"
 
 	"github.com/SUSE/skuba/pkg/skuba"
-	"github.com/pkg/errors"
 )
 
 type InitConfiguration struct {
@@ -61,6 +61,27 @@ func (initConfiguration InitConfiguration) KubernetesVersionAtLeast(version stri
 // FIXME: being this a part of the go API accept the toplevel directory instead of
 //        using the PWD
 func Init(initConfiguration InitConfiguration) error {
+	/*
+		initConfiguration := cluster.InitConfiguration{
+			ClusterName:         args[0],
+			CloudProvider:       initOptions.CloudProvider,
+			ControlPlane:        initOptions.ControlPlane,
+			PauseImage:          images.GetGenericImage(skuba.ImageRepository, "pause", kubernetes.ComponentVersionForClusterVersion(kubernetes.Pause, kubernetesVersion)),
+			CiliumImage:         cilium.GetCiliumImage(),
+			CiliumInitImage:     cilium.GetCiliumInitImage(),
+			CiliumOperatorImage: cilium.GetCiliumOperatorImage(),
+			KuredImage:          kured.GetKuredImage(),
+			DexImage:            dex.GetDexImage(),
+			GangwayClientSecret: dex.GenerateClientSecret(),
+			GangwayImage:        gangway.GetGangwayImage(),
+			KubernetesVersion:   kubernetesVersion,
+			ImageRepository:     skuba.ImageRepository,
+			EtcdImageTag:        kubernetes.ComponentVersionForClusterVersion(kubernetes.Etcd, kubernetesVersion),
+			CoreDNSImageTag:     kubernetes.ComponentVersionForClusterVersion(kubernetes.CoreDNS, kubernetesVersion),
+			StrictCapDefaults:   initOptions.StrictCapDefaults,
+		}
+	*/
+
 	if _, err := os.Stat(initConfiguration.ClusterName); err == nil {
 		return errors.Wrapf(err, "cluster configuration directory %q already exists", initConfiguration.ClusterName)
 	}

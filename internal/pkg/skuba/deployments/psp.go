@@ -15,33 +15,36 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
-	"fmt"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/pkg/errors"
-	"k8s.io/klog"
+
+	"github.com/SUSE/skuba/pkg/skuba"
 )
 
-var (
-	stateMap = map[string]Runner{}
-)
+func init() {
+	stateMap["psp.deploy"] = pspDeploy
+}
 
-type Runner func(t *Target, data interface{}) error
+func pspDeploy(t *Target, data interface{}) error {
+	pspFiles, err := ioutil.ReadDir(skuba.PspDir())
+	if err != nil {
+		return errors.Wrap(err, "could not read local psp directory")
+	}
 
-func (t *Target) Apply(data interface{}, states ...string) error {
-	for _, stateName := range states {
-		klog.V(1).Infof("=== applying state %s ===", stateName)
-		if state, stateExists := stateMap[stateName]; stateExists {
-			if err := state(t, data); err != nil {
-				return errors.Wrapf(err, "failed to apply state %s", stateName)
-			} else {
-				klog.V(1).Infof("=== state %s applied successfully ===", stateName)
-			}
-		} else {
-			return errors.New(fmt.Sprintf("state does not exist: %s", stateName))
+	defer t.Do("rm -rf /tmp/psp.d")
+
+	for _, f := range pspFiles {
+		if err := t.UploadFile(filepath.Join(skuba.PspDir(), f.Name()), filepath.Join("/tmp/psp.d", f.Name())); err != nil {
+			return err
 		}
 	}
-	return nil
+
+	_, _, err = t.Do("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/psp.d")
+	return err
+
 }

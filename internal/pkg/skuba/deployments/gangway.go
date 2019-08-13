@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"fmt"
@@ -24,6 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/gangway"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
@@ -36,6 +37,11 @@ func init() {
 }
 
 func gangwayDeploy(t *Target, data interface{}) error {
+	initConf, ok := data.(*kubeadmapi.InitConfiguration)
+	if !ok {
+		return errors.New("couldn't access init configuration")
+	}
+
 	key, err := gangway.GenerateSessionKey()
 	if err != nil {
 		return errors.Wrap(err, "unable to generate gangway session key")
@@ -48,7 +54,7 @@ func gangwayDeploy(t *Target, data interface{}) error {
 	if err != nil {
 		return errors.Wrap(err, "unable to create/update gangway session key to secret")
 	}
-	err = gangway.CreateCert(client, skuba.PkiDir(), skuba.KubeadmInitConfFile())
+	err = gangway.CreateCert(client, skuba.PkiDir(), initConf)
 	if err != nil {
 		return errors.Wrap(err, "unable to create gangway certificate")
 	}
@@ -58,25 +64,30 @@ func gangwayDeploy(t *Target, data interface{}) error {
 		return errors.Wrap(err, "could not read local gangway directory")
 	}
 
-	defer t.ssh("rm -rf /tmp/gangway.d")
+	defer t.Do("rm -rf /tmp/gangway.d")
 
 	for _, f := range gangwayFiles {
-		if err := t.target.UploadFile(filepath.Join(skuba.GangwayDir(), f.Name()), filepath.Join("/tmp/gangway.d", f.Name())); err != nil {
+		if err := t.UploadFile(filepath.Join(skuba.GangwayDir(), f.Name()), filepath.Join("/tmp/gangway.d", f.Name())); err != nil {
 			return err
 		}
 	}
 
-	_, _, err = t.ssh("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/gangway.d")
+	_, _, err = t.Do("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/gangway.d")
 	return err
 }
 
 func gangwayRenewCertificate(t *Target, data interface{}) error {
+	initConf, ok := data.(*kubeadmapi.InitConfiguration)
+	if !ok {
+		return errors.New("couldn't access init configuration")
+	}
+
 	client, err := kubernetes.GetAdminClientSet()
 	if err != nil {
 		return errors.Wrap(err, "could not get admin client set")
 	}
 
-	err = gangway.CreateCert(client, skuba.PkiDir(), skuba.KubeadmInitConfFile())
+	err = gangway.CreateCert(client, skuba.PkiDir(), initConf)
 	if err != nil {
 		return errors.Wrap(err, "unable to create gangway certificate")
 	}

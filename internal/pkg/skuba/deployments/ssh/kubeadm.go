@@ -17,6 +17,7 @@
 
 package ssh
 
+/*
 import (
 	"path/filepath"
 
@@ -107,3 +108,4 @@ func kubeadmUpgradeNode(t *Target, data interface{}) error {
 	_, _, err := t.ssh("kubeadm", "upgrade", "node")
 	return err
 }
+*/

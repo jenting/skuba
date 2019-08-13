@@ -15,13 +15,13 @@
  *
  */
 
-package ssh
+package deployments
 
 func init() {
 	stateMap["apparmor.start"] = apparmorStart
 }
 
 func apparmorStart(t *Target, data interface{}) error {
-	_, _, err := t.ssh("systemctl", "enable", "--now", "apparmor")
+	_, _, err := t.Do("systemctl", "enable", "--now", "apparmor")
 	return err
 }

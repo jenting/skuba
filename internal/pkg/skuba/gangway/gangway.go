@@ -25,6 +25,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientset "k8s.io/client-go/kubernetes"
+	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
 	"k8s.io/kubernetes/cmd/kubeadm/app/constants"
 	"k8s.io/kubernetes/cmd/kubeadm/app/images"
 	"k8s.io/kubernetes/cmd/kubeadm/app/util/apiclient"
@@ -33,7 +34,6 @@ import (
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
 	"github.com/SUSE/skuba/internal/pkg/skuba/util"
 	"github.com/SUSE/skuba/pkg/skuba"
-	node "github.com/SUSE/skuba/pkg/skuba/actions/node/bootstrap"
 )
 
 const (
@@ -80,23 +80,22 @@ func CreateOrUpdateSessionKeyToSecret(client clientset.Interface, key []byte) er
 // with kubernetes CA certificate and key
 func CreateCert(
 	client clientset.Interface,
-	pkiPath, kubeadmInitConfPath string,
+	pkiPath string,
+	initConf *kubeadmapi.InitConfiguration,
 ) error {
+	if initConf == nil {
+		return errors.New("kubeadm init conf nil")
+	}
+
 	// Load kubernetes CA
 	caCert, caKey, err := pkiutil.TryLoadCertAndKeyFromDisk(pkiPath, constants.CACertAndKeyBaseName)
 	if err != nil {
 		return errors.Errorf("unable to load kubernetes CA certificate and key %v", err)
 	}
 
-	// Load kubeadm-init.conf to get certificate SANs
-	cfg, err := node.LoadInitConfigurationFromFile(kubeadmInitConfPath)
-	if err != nil {
-		return errors.Wrapf(err, "could not parse %s file", kubeadmInitConfPath)
-	}
-
 	// Generate gangway certificate
 	cert, key, err := util.NewServerCertAndKey(caCert, caKey,
-		CertCommonName, cfg.ClusterConfiguration.APIServer.CertSANs)
+		CertCommonName, initConf.ClusterConfiguration.APIServer.CertSANs)
 	if err != nil {
 		return errors.Wrap(err, "could not genenerate gangway server cert")
 	}

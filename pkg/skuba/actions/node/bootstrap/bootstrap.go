@@ -98,8 +98,7 @@ func Bootstrap(bootstrapConfiguration deployments.BootstrapConfiguration, target
 	}
 
 	fmt.Println("[bootstrap] applying init configuration to node")
-	err = target.Apply(
-		bootstrapConfiguration,
+	err = target.Apply(bootstrapConfiguration,
 		"kubeadm.reset",
 		"kubernetes.bootstrap.upload-secrets",
 		"kernel.load-modules",
@@ -125,7 +124,7 @@ func Bootstrap(bootstrapConfiguration deployments.BootstrapConfiguration, target
 
 	// deploy the components after downloadSecrets because
 	// we need to generate secrets and certificates
-	err = target.Apply(nil,
+	err = target.Apply(initConfiguration,
 		"cni.deploy",
 		"dex.deploy",
 		"gangway.deploy",

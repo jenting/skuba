@@ -88,7 +88,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 		return err
 	}
 
-	if joinConfiguration.Role == deployments.MasterRole {
+	if joinConfiguration.Role == skuba.MasterRole {
 		statesToApply = append([]string{"kubernetes.join.upload-secrets"}, statesToApply...)
 	}
 
@@ -110,7 +110,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 //
 // FIXME: being this a part of the go API accept the toplevel directory instead of
 //        using the PWD
-func ConfigPath(role deployments.Role, target *deployments.Target) (string, error) {
+func ConfigPath(role skuba.Role, target *deployments.Target) (string, error) {
 	configPath := skuba.MachineConfFile(target.Hostname)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		configPath = skuba.TemplatePathForRole(role)
@@ -157,7 +157,7 @@ func addFreshTokenToJoinConfiguration(target string, joinConfiguration *kubeadma
 	return err
 }
 
-func addTargetInformationToJoinConfiguration(target *deployments.Target, role deployments.Role, joinConfiguration *kubeadmapi.JoinConfiguration) error {
+func addTargetInformationToJoinConfiguration(target *deployments.Target, role skuba.Role, joinConfiguration *kubeadmapi.JoinConfiguration) error {
 	if joinConfiguration.NodeRegistration.KubeletExtraArgs == nil {
 		joinConfiguration.NodeRegistration.KubeletExtraArgs = map[string]string{}
 	}

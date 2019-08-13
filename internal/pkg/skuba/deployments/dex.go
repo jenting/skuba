@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"fmt"
@@ -24,6 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	kubeadmapi "k8s.io/kubernetes/cmd/kubeadm/app/apis/kubeadm"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/dex"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
@@ -36,11 +37,16 @@ func init() {
 }
 
 func dexDeploy(t *Target, data interface{}) error {
+	initConf, ok := data.(*kubeadmapi.InitConfiguration)
+	if !ok {
+		return errors.New("couldn't access init configuration")
+	}
+
 	client, err := kubernetes.GetAdminClientSet()
 	if err != nil {
 		return errors.Wrap(err, "could not get admin client set")
 	}
-	err = dex.CreateCert(client, skuba.PkiDir(), skuba.KubeadmInitConfFile())
+	err = dex.CreateCert(client, skuba.PkiDir(), initConf)
 	if err != nil {
 		return errors.Wrap(err, "unable to create dex certificate")
 	}
@@ -50,25 +56,30 @@ func dexDeploy(t *Target, data interface{}) error {
 		return errors.Wrap(err, "could not read local dex directory")
 	}
 
-	defer t.ssh("rm -rf /tmp/dex.d")
+	defer t.Do("rm -rf /tmp/dex.d")
 
 	for _, f := range dexFiles {
-		if err := t.target.UploadFile(filepath.Join(skuba.DexDir(), f.Name()), filepath.Join("/tmp/dex.d", f.Name())); err != nil {
+		if err := t.UploadFile(filepath.Join(skuba.DexDir(), f.Name()), filepath.Join("/tmp/dex.d", f.Name())); err != nil {
 			return err
 		}
 	}
 
-	_, _, err = t.ssh("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/dex.d")
+	_, _, err = t.Do("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/dex.d")
 	return err
 }
 
 func dexRenewCertificate(t *Target, data interface{}) error {
+	initConf, ok := data.(*kubeadmapi.InitConfiguration)
+	if !ok {
+		return errors.New("couldn't access init configuration")
+	}
+
 	client, err := kubernetes.GetAdminClientSet()
 	if err != nil {
 		return errors.Wrap(err, "could not get admin client set")
 	}
 
-	err = dex.CreateCert(client, skuba.PkiDir(), skuba.KubeadmInitConfFile())
+	err = dex.CreateCert(client, skuba.PkiDir(), initConf)
 	if err != nil {
 		return errors.Wrap(err, "unable to create dex certificate")
 	}

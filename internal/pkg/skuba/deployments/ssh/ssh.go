@@ -124,11 +124,11 @@ func (t *Target) String() string {
 	return fmt.Sprintf("%s@%s:%d", t.cfg.user, t.target.Hostname, t.cfg.port)
 }
 
-func (t *Target) silentSsh(command string, args ...string) (stdout string, stderr string, error error) {
+func (t *Target) SilentDo(command string, args ...string) (stdout string, stderr string, error error) {
 	return t.internalSshWithStdin(true, "", command, args...)
 }
 
-func (t *Target) ssh(command string, args ...string) (stdout string, stderr string, error error) {
+func (t *Target) Do(command string, args ...string) (stdout string, stderr string, error error) {
 	return t.internalSshWithStdin(false, "", command, args...)
 }
 

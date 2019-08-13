@@ -31,6 +31,7 @@ import (
 	certutil "k8s.io/client-go/util/cert"
 	"k8s.io/client-go/util/keyutil"
 	"k8s.io/klog"
+	"k8s.io/kubernetes/cmd/kubeadm/app/constants"
 	kubeadmconstants "k8s.io/kubernetes/cmd/kubeadm/app/constants"
 	"k8s.io/kubernetes/cmd/kubeadm/app/images"
 	"k8s.io/kubernetes/cmd/kubeadm/app/util/apiclient"
@@ -67,8 +68,8 @@ type EtcdConfig struct {
 }
 
 func CreateCiliumSecret() error {
-	etcdDir := filepath.Join("pki", "etcd")
-	caCert, caKey, err := pkiutil.TryLoadCertAndKeyFromDisk(etcdDir, "ca")
+	etcdDir := filepath.Join(skuba.PkiDir(), constants.Etcd)
+	caCert, caKey, err := pkiutil.TryLoadCertAndKeyFromDisk(etcdDir, constants.CACertAndKeyBaseName)
 	if err != nil {
 		return errors.Errorf("etcd generation retrieval failed %v", err)
 	}
@@ -166,6 +167,7 @@ func GetCiliumImage() string {
 	return images.GetGenericImage(skuba.ImageRepository, "cilium",
 		kubernetes.CurrentAddonVersion(kubernetes.Cilium))
 }
+
 func GetCiliumInitImage() string {
 	return images.GetGenericImage(skuba.ImageRepository, "cilium-init",
 		kubernetes.CurrentAddonVersion(kubernetes.Cilium))

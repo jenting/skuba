@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"golang.org/x/crypto/ssh"
@@ -26,7 +26,7 @@ import (
 func (t *Target) IsServiceEnabled(serviceName string) (bool, error) {
 	klog.V(1).Info("checking if skuba-update.timer is enabled")
 	isEnabled := true
-	_, _, err := t.silentSsh("systemctl", "is-enabled", serviceName)
+	_, _, err := t.SilentDo("systemctl", "is-enabled", serviceName)
 	if err != nil {
 		t, isExitError := err.(*ssh.ExitError)
 		if isExitError && t.ExitStatus() == 1 {

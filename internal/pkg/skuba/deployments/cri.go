@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"io/ioutil"
@@ -36,22 +36,22 @@ func criConfigure(t *Target, data interface{}) error {
 	if err != nil {
 		return errors.Wrap(err, "Could not read local cri directory: "+skuba.CriDir())
 	}
-	defer t.ssh("rm -rf /tmp/cri.d")
+	defer t.Do("rm -rf /tmp/cri.d")
 
 	for _, f := range criFiles {
-		if err := t.target.UploadFile(filepath.Join(skuba.CriDir(), f.Name()), filepath.Join("/tmp/cri.d", f.Name())); err != nil {
+		if err := t.UploadFile(filepath.Join(skuba.CriDir(), f.Name()), filepath.Join("/tmp/cri.d", f.Name())); err != nil {
 			return err
 		}
 	}
 
-	if _, _, err = t.ssh("mv -f /etc/sysconfig/crio /etc/sysconfig/crio.backup"); err != nil {
+	if _, _, err = t.Do("mv -f /etc/sysconfig/crio /etc/sysconfig/crio.backup"); err != nil {
 		return err
 	}
-	_, _, err = t.ssh("mv -f /tmp/cri.d/default_flags /etc/sysconfig/crio")
+	_, _, err = t.Do("mv -f /tmp/cri.d/default_flags /etc/sysconfig/crio")
 	return err
 }
 
 func criStart(t *Target, data interface{}) error {
-	_, _, err := t.ssh("systemctl", "enable", "--now", "crio")
+	_, _, err := t.Do("systemctl", "enable", "--now", "crio")
 	return err
 }

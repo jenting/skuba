@@ -21,13 +21,18 @@ import (
 	"fmt"
 	"path"
 	"path/filepath"
-
-	"github.com/SUSE/skuba/internal/pkg/skuba/deployments"
 )
 
 const (
 	CRISocket  = "/var/run/crio/crio.sock"
 	SUSECNIDir = "/usr/lib/cni"
+)
+
+type Role uint
+
+const (
+	MasterRole Role = iota
+	WorkerRole Role = iota
 )
 
 func KubeadmInitConfFile() string {
@@ -54,11 +59,11 @@ func MachineConfFile(target string) string {
 	return filepath.Join(JoinConfDir(), fmt.Sprintf("%s.conf", target))
 }
 
-func TemplatePathForRole(role deployments.Role) string {
+func TemplatePathForRole(role Role) string {
 	switch role {
-	case deployments.MasterRole:
+	case MasterRole:
 		return MasterConfTemplateFile()
-	case deployments.WorkerRole:
+	case WorkerRole:
 		return WorkerConfTemplateFile()
 	}
 	return ""

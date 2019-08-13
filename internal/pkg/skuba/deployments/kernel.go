@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"fmt"
@@ -66,14 +66,14 @@ func kernelConfigureParameters(t *Target, data interface{}) error {
 }
 
 func loadModule(t *Target, module string) error {
-	if _, _, err := t.ssh(fmt.Sprintf("modprobe %s", module)); err != nil {
+	if _, _, err := t.Do(fmt.Sprintf("modprobe %s", module)); err != nil {
 		return err
 	}
 	return t.UploadFileContents(fmt.Sprintf("/etc/modules-load.d/skuba-%s.conf", module), module)
 }
 
 func configureParameter(t *Target, name, attribute, value string) error {
-	if _, _, err := t.ssh(fmt.Sprintf("sysctl -w %s=%s", attribute, value)); err != nil {
+	if _, _, err := t.Do(fmt.Sprintf("sysctl -w %s=%s", attribute, value)); err != nil {
 		return err
 	}
 	return t.UploadFileContents(fmt.Sprintf("/etc/sysctl.d/90-skuba-%s.conf", name), fmt.Sprintf("%s=%s", attribute, value))

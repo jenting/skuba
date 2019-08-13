@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"io/ioutil"
@@ -44,15 +44,15 @@ func cniDeploy(t *Target, data interface{}) error {
 		return errors.Wrap(err, "could not read local cni directory")
 	}
 
-	defer t.ssh("rm -rf /tmp/cni.d")
+	defer t.Do("rm -rf /tmp/cni.d")
 
 	for _, f := range cniFiles {
-		if err := t.target.UploadFile(filepath.Join(skuba.CniDir(), f.Name()), filepath.Join("/tmp/cni.d", f.Name())); err != nil {
+		if err := t.UploadFile(filepath.Join(skuba.CniDir(), f.Name()), filepath.Join("/tmp/cni.d", f.Name())); err != nil {
 			return err
 		}
 	}
 
-	_, _, err = t.ssh("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/cni.d")
+	_, _, err = t.Do("kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f /tmp/cni.d")
 	return err
 }
 
