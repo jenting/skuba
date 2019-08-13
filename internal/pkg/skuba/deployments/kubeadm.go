@@ -15,15 +15,13 @@
  *
  */
 
-package ssh
+package deployments
 
-/*
 import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
 
-	"github.com/SUSE/skuba/internal/pkg/skuba/deployments"
 	"github.com/SUSE/skuba/pkg/skuba"
 	"github.com/SUSE/skuba/pkg/skuba/actions/node/join"
 )
@@ -39,7 +37,7 @@ func init() {
 var remoteKubeadmInitConfFile = filepath.Join("/tmp/", skuba.KubeadmInitConfFile())
 
 func kubeadmInit(t *Target, data interface{}) error {
-	bootstrapConfiguration, ok := data.(deployments.BootstrapConfiguration)
+	bootstrapConfiguration, ok := data.(BootstrapConfiguration)
 	if !ok {
 		return errors.New("couldn't access bootstrap configuration")
 	}
@@ -47,19 +45,19 @@ func kubeadmInit(t *Target, data interface{}) error {
 	if err := t.target.UploadFile(skuba.KubeadmInitConfFile(), remoteKubeadmInitConfFile); err != nil {
 		return err
 	}
-	defer t.ssh("rm", remoteKubeadmInitConfFile)
+	defer t.Do("rm", remoteKubeadmInitConfFile)
 
 	ignorePreflightErrors := ""
 	ignorePreflightErrorsVal := bootstrapConfiguration.KubeadmExtraArgs["ignore-preflight-errors"]
 	if len(ignorePreflightErrorsVal) > 0 {
 		ignorePreflightErrors = "--ignore-preflight-errors=" + ignorePreflightErrorsVal
 	}
-	_, _, err := t.ssh("kubeadm", "init", "--config", remoteKubeadmInitConfFile, "--skip-token-print", ignorePreflightErrors)
+	_, _, err := t.Do("kubeadm", "init", "--config", remoteKubeadmInitConfFile, "--skip-token-print", ignorePreflightErrors)
 	return err
 }
 
 func kubeadmJoin(t *Target, data interface{}) error {
-	joinConfiguration, ok := data.(deployments.JoinConfiguration)
+	joinConfiguration, ok := data.(JoinConfiguration)
 	if !ok {
 		return errors.New("couldn't access join configuration")
 	}
@@ -72,24 +70,24 @@ func kubeadmJoin(t *Target, data interface{}) error {
 	if err := t.target.UploadFile(configPath, remoteKubeadmInitConfFile); err != nil {
 		return err
 	}
-	defer t.ssh("rm", remoteKubeadmInitConfFile)
+	defer t.Do("rm", remoteKubeadmInitConfFile)
 
 	ignorePreflightErrors := ""
 	ignorePreflightErrorsVal := joinConfiguration.KubeadmExtraArgs["ignore-preflight-errors"]
 	if len(ignorePreflightErrorsVal) > 0 {
 		ignorePreflightErrors = "--ignore-preflight-errors=" + ignorePreflightErrorsVal
 	}
-	_, _, err = t.ssh("kubeadm", "join", "--config", remoteKubeadmInitConfFile, ignorePreflightErrors)
+	_, _, err = t.Do("kubeadm", "join", "--config", remoteKubeadmInitConfFile, ignorePreflightErrors)
 	return err
 }
 
 func kubeadmReset(t *Target, data interface{}) error {
-	_, _, err := t.ssh("kubeadm", "reset", "--cri-socket", "/var/run/crio/crio.sock", "--ignore-preflight-errors", "all", "--force")
+	_, _, err := t.Do("kubeadm", "reset", "--cri-socket", "/var/run/crio/crio.sock", "--ignore-preflight-errors", "all", "--force")
 	return err
 }
 
 func kubeadmUpgradeApply(t *Target, data interface{}) error {
-	upgradeConfiguration, ok := data.(deployments.UpgradeConfiguration)
+	upgradeConfiguration, ok := data.(UpgradeConfiguration)
 	if !ok {
 		return errors.New("couldn't access upgrade configuration")
 	}
@@ -98,14 +96,13 @@ func kubeadmUpgradeApply(t *Target, data interface{}) error {
 	if err := t.target.UploadFileContents(remoteKubeadmUpgradeConfFile, upgradeConfiguration.KubeadmConfigContents); err != nil {
 		return err
 	}
-	defer t.ssh("rm", remoteKubeadmUpgradeConfFile)
+	defer t.Do("rm", remoteKubeadmUpgradeConfFile)
 
-	_, _, err := t.ssh("kubeadm", "upgrade", "apply", "--config", remoteKubeadmUpgradeConfFile, "-y")
+	_, _, err := t.Do("kubeadm", "upgrade", "apply", "--config", remoteKubeadmUpgradeConfFile, "-y")
 	return err
 }
 
 func kubeadmUpgradeNode(t *Target, data interface{}) error {
-	_, _, err := t.ssh("kubeadm", "upgrade", "node")
+	_, _, err := t.Do("kubeadm", "upgrade", "node")
 	return err
 }
-*/
