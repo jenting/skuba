@@ -39,7 +39,7 @@ import (
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubeadm"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
 	"github.com/SUSE/skuba/internal/pkg/skuba/node"
-	"github.com/SUSE/skuba/pkg/skuba"
+	skubaconstants "github.com/SUSE/skuba/pkg/skuba"
 	"github.com/SUSE/skuba/pkg/skuba/cloud"
 )
 
@@ -67,7 +67,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 	}
 
 	var criConfigure string
-	if _, err := os.Stat(skuba.CriDockerDefaultsConfFile()); err == nil {
+	if _, err := os.Stat(skubaconstants.CriDockerDefaultsConfFile()); err == nil {
 		criConfigure = "cri.configure"
 	}
 
@@ -89,7 +89,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 		return err
 	}
 
-	if joinConfiguration.Role == deployments.MasterRole {
+	if joinConfiguration.Role == skubaconstants.MasterRole {
 		statesToApply = append([]string{"kubernetes.join.upload-secrets"}, statesToApply...)
 	}
 
@@ -102,7 +102,7 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 		return err
 	}
 
-	if joinConfiguration.Role == deployments.MasterRole {
+	if joinConfiguration.Role == skubaconstants.MasterRole {
 		if err := cni.CiliumUpdateConfigMap(client); err != nil {
 			return err
 		}
@@ -117,10 +117,10 @@ func Join(joinConfiguration deployments.JoinConfiguration, target *deployments.T
 //
 // FIXME: being this a part of the go API accept the toplevel directory instead of
 //        using the PWD
-func ConfigPath(role deployments.Role, target *deployments.Target) (string, error) {
-	configPath := skuba.MachineConfFile(target.Target)
+func ConfigPath(role skubaconstants.Role, target *deployments.Target) (string, error) {
+	configPath := skubaconstants.MachineConfFile(target.Target)
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		configPath = skuba.TemplatePathForRole(role)
+		configPath = skubaconstants.TemplatePathForRole(role)
 	}
 
 	client, err := kubernetes.GetAdminClientSet()
@@ -139,8 +139,8 @@ func ConfigPath(role deployments.Role, target *deployments.Target) (string, erro
 	addFreshTokenToJoinConfiguration(target.Target, joinConfiguration)
 	addTargetInformationToJoinConfiguration(target, role, joinConfiguration, currentClusterVersion)
 	if cloud.HasCloudIntegration() {
-		if !cloud.ConfigHasRestrictedPermissions(skuba.OpenstackCloudConfFile()) {
-			return "", errors.New(fmt.Sprintf("Cloud config file %s should be accessible only by the owner (eg 600)", skuba.OpenstackCloudConfFile()))
+		if !cloud.ConfigHasRestrictedPermissions(skubaconstants.OpenstackCloudConfFile()) {
+			return "", errors.New(fmt.Sprintf("Cloud config file %s should be accessible only by the owner (eg 600)", skubaconstants.OpenstackCloudConfFile()))
 		}
 		setCloudConfiguration(joinConfiguration)
 	}
@@ -152,11 +152,11 @@ func ConfigPath(role deployments.Role, target *deployments.Target) (string, erro
 		return "", errors.Wrap(err, "could not marshal configuration")
 	}
 
-	if err := ioutil.WriteFile(skuba.MachineConfFile(target.Target), finalJoinConfigurationContents, 0600); err != nil {
+	if err := ioutil.WriteFile(skubaconstants.MachineConfFile(target.Target), finalJoinConfigurationContents, 0600); err != nil {
 		return "", errors.Wrap(err, "error writing specific machine configuration")
 	}
 
-	return skuba.MachineConfFile(target.Target), nil
+	return skubaconstants.MachineConfFile(target.Target), nil
 }
 
 func addFreshTokenToJoinConfiguration(target string, joinConfiguration *kubeadmapi.JoinConfiguration) error {
@@ -169,20 +169,20 @@ func addFreshTokenToJoinConfiguration(target string, joinConfiguration *kubeadma
 	return err
 }
 
-func addTargetInformationToJoinConfiguration(target *deployments.Target, role deployments.Role, joinConfiguration *kubeadmapi.JoinConfiguration, clusterVersion *version.Version) error {
+func addTargetInformationToJoinConfiguration(target *deployments.Target, role skubaconstants.Role, joinConfiguration *kubeadmapi.JoinConfiguration, clusterVersion *version.Version) error {
 	if joinConfiguration.NodeRegistration.KubeletExtraArgs == nil {
 		joinConfiguration.NodeRegistration.KubeletExtraArgs = map[string]string{}
 	}
 	joinConfiguration.NodeRegistration.Name = target.Nodename
-	joinConfiguration.NodeRegistration.CRISocket = skuba.CRISocket
+	joinConfiguration.NodeRegistration.CRISocket = skubaconstants.CRISocket
 	joinConfiguration.NodeRegistration.KubeletExtraArgs["hostname-override"] = target.Nodename
-	joinConfiguration.NodeRegistration.KubeletExtraArgs["pod-infra-container-image"] = images.GetGenericImage(skuba.ImageRepository, "pause", kubernetes.ComponentVersionForClusterVersion(kubernetes.Pause, clusterVersion))
+	joinConfiguration.NodeRegistration.KubeletExtraArgs["pod-infra-container-image"] = images.GetGenericImage(skubaconstants.ImageRepository, "pause", kubernetes.ComponentVersionForClusterVersion(kubernetes.Pause, clusterVersion))
 	isSUSE, err := target.IsSUSEOS()
 	if err != nil {
 		return errors.Wrap(err, "unable to get os info")
 	}
 	if isSUSE {
-		joinConfiguration.NodeRegistration.KubeletExtraArgs["cni-bin-dir"] = skuba.SUSECNIDir
+		joinConfiguration.NodeRegistration.KubeletExtraArgs["cni-bin-dir"] = skubaconstants.SUSECNIDir
 	}
 	return nil
 }
@@ -224,5 +224,5 @@ func createBootstrapToken(target string) (string, error) {
 
 func setCloudConfiguration(joinConfiguration *kubeadmapi.JoinConfiguration) {
 	joinConfiguration.NodeRegistration.KubeletExtraArgs["cloud-provider"] = "openstack"
-	joinConfiguration.NodeRegistration.KubeletExtraArgs["cloud-config"] = skuba.OpenstackConfigRuntimeFile()
+	joinConfiguration.NodeRegistration.KubeletExtraArgs["cloud-config"] = skubaconstants.OpenstackConfigRuntimeFile()
 }

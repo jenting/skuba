@@ -15,25 +15,13 @@
  *
  */
 
-package ssh
+package deployments
 
-import (
-	"golang.org/x/crypto/ssh"
-	"k8s.io/klog"
-)
+func init() {
+	stateMap["apparmor.start"] = apparmorStart
+}
 
-// IsServiceEnabled returns if a service is enabled
-func (t *Target) IsServiceEnabled(serviceName string) (bool, error) {
-	klog.V(1).Info("checking if skuba-update.timer is enabled")
-	isEnabled := true
-	_, _, err := t.silentSsh("systemctl", "is-enabled", serviceName)
-	if err != nil {
-		t, isExitError := err.(*ssh.ExitError)
-		if isExitError && t.ExitStatus() == 1 {
-			isEnabled = false
-			// the error is sane
-			err = nil
-		}
-	}
-	return isEnabled, err
+func apparmorStart(t *Target, data interface{}) error {
+	_, _, err := t.ssh("systemctl", "enable", "--now", "apparmor")
+	return err
 }

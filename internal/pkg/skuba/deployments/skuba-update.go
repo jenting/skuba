@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 func init() {
 	stateMap["skuba-update.start"] = skubaUpdateStart

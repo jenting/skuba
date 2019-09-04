@@ -15,14 +15,15 @@
  *
  */
 
-package ssh
+ package deployments
 
 import (
 	"io/ioutil"
 	"path/filepath"
 
-	"github.com/SUSE/skuba/pkg/skuba"
 	"github.com/pkg/errors"
+	
+	"github.com/SUSE/skuba/pkg/skuba"
 )
 
 func init() {

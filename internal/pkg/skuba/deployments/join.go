@@ -21,21 +21,16 @@ import (
 	"strings"
 
 	"k8s.io/klog"
+
+	skubaconstants "github.com/SUSE/skuba/pkg/skuba"
 )
 
-type Role uint
-
-const (
-	MasterRole Role = iota
-	WorkerRole Role = iota
-)
-
-func MustGetRoleFromString(s string) (role Role) {
+func MustGetRoleFromString(s string) (role skubaconstants.Role) {
 	switch strings.ToLower(s) {
 	case "master":
-		role = MasterRole
+		role = skubaconstants.MasterRole
 	case "worker":
-		role = WorkerRole
+		role = skubaconstants.WorkerRole
 	default:
 		klog.Fatalf("[join] invalid role provided: %q, 'master' or 'worker' are the only accepted roles", s)
 	}

@@ -15,14 +15,13 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-
-	"github.com/SUSE/skuba/internal/pkg/skuba/deployments"
+	
 	"github.com/SUSE/skuba/pkg/skuba"
 	"github.com/SUSE/skuba/pkg/skuba/actions/node/join"
 )
@@ -38,7 +37,7 @@ func init() {
 var remoteKubeadmInitConfFile = filepath.Join("/tmp/", skuba.KubeadmInitConfFile())
 
 func kubeadmInit(t *Target, data interface{}) error {
-	bootstrapConfiguration, ok := data.(deployments.BootstrapConfiguration)
+	bootstrapConfiguration, ok := data.(BootstrapConfiguration)
 	if !ok {
 		return errors.New("couldn't access bootstrap configuration")
 	}
@@ -58,7 +57,7 @@ func kubeadmInit(t *Target, data interface{}) error {
 }
 
 func kubeadmJoin(t *Target, data interface{}) error {
-	joinConfiguration, ok := data.(deployments.JoinConfiguration)
+	joinConfiguration, ok := data.(JoinConfiguration)
 	if !ok {
 		return errors.New("couldn't access join configuration")
 	}
@@ -88,7 +87,7 @@ func kubeadmReset(t *Target, data interface{}) error {
 }
 
 func kubeadmUpgradeApply(t *Target, data interface{}) error {
-	upgradeConfiguration, ok := data.(deployments.UpgradeConfiguration)
+	upgradeConfiguration, ok := data.(UpgradeConfiguration)
 	if !ok {
 		return errors.New("couldn't access upgrade configuration")
 	}

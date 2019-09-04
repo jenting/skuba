@@ -15,7 +15,7 @@
  *
  */
 
-package ssh
+package deployments
 
 import (
 	"fmt"
