@@ -18,8 +18,10 @@
 package node
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/deployments"
 	"github.com/SUSE/skuba/internal/pkg/skuba/deployments/ssh"
@@ -42,7 +44,8 @@ func NewBootstrapCmd() *cobra.Command {
 		Short: "Bootstraps the first master node of the cluster",
 		Run: func(cmd *cobra.Command, nodenames []string) {
 			if err := validate.NodeName(nodenames[0]); err != nil {
-				klog.Fatal(err)
+				fmt.Printf("Unable to bootstrap the first master node: %s\n", err)
+				os.Exit(1)
 			}
 
 			bootstrapConfiguration := deployments.BootstrapConfiguration{
@@ -51,7 +54,8 @@ func NewBootstrapCmd() *cobra.Command {
 
 			d := target.GetDeployment(nodenames[0])
 			if err := node.Bootstrap(bootstrapConfiguration, d); err != nil {
-				klog.Fatalf("error bootstrapping node: %s", err)
+				fmt.Printf("Unable to bootstrap the first master node: %s\n", err)
+				os.Exit(1)
 			}
 		},
 		Args: cobra.ExactArgs(1),

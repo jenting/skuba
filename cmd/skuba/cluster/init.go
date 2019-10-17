@@ -18,8 +18,10 @@
 package cluster
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 
 	"github.com/SUSE/skuba/pkg/skuba"
 	cluster "github.com/SUSE/skuba/pkg/skuba/actions/cluster/init"
@@ -47,11 +49,13 @@ func NewInitCmd() *cobra.Command {
 				initOptions.KubernetesVersion,
 				initOptions.StrictCapDefaults)
 			if err != nil {
-				klog.Fatalf("init failed due to error: %s", err)
+				fmt.Printf("Init failed: %s\n", err)
+				os.Exit(1)
 			}
 
 			if err = cluster.Init(initConfig); err != nil {
-				klog.Fatalf("init failed due to error: %s", err)
+				fmt.Printf("Init failed: %s\n", err)
+				os.Exit(1)
 			}
 		},
 		Args: cobra.ExactArgs(1),

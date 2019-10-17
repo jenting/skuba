@@ -18,10 +18,11 @@
 package node
 
 import (
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
 	node "github.com/SUSE/skuba/pkg/skuba/actions/node/remove"
@@ -40,16 +41,13 @@ func NewRemoveCmd() *cobra.Command {
 		Run: func(cmd *cobra.Command, nodenames []string) {
 			client, err := kubernetes.GetAdminClientSet()
 			if err != nil {
-				klog.Fatalf("unable to get admin client set: %s", err)
-			}
-
-			if removeOptions.drainTimeout < 0 {
-				klog.Infof("the passed duration was negative and will be ignored")
-				removeOptions.drainTimeout = 0
+				fmt.Printf("Unable to remove a node: %s\n", err)
+				os.Exit(1)
 			}
 
 			if err := node.Remove(client, nodenames[0], removeOptions.drainTimeout); err != nil {
-				klog.Fatalf("error removing node %s: %s", nodenames[0], err)
+				fmt.Printf("Unable to remove a node %s: %s\n", nodenames[0], err)
+				os.Exit(1)
 			}
 		},
 		Args: cobra.ExactArgs(1),

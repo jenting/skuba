@@ -18,8 +18,10 @@
 package cluster
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 
 	cluster "github.com/SUSE/skuba/pkg/skuba/actions/cluster/status"
 )
@@ -31,7 +33,8 @@ func NewStatusCmd() *cobra.Command {
 		Short: "Show cluster status",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := cluster.Status(); err != nil {
-				klog.Errorf("unable to get cluster status: %s", err)
+				fmt.Printf("Unable to get cluster status: %s\n", err)
+				os.Exit(1)
 			}
 		},
 		Args: cobra.NoArgs,

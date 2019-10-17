@@ -61,7 +61,7 @@ func newUpgradeApplyCmd() *cobra.Command {
 		Short: "Apply addon upgrade",
 		Run: func(cmd *cobra.Command, args []string) {
 			if err := addons.Apply(); err != nil {
-				fmt.Printf("Unable to Apply addons upgrade: %s\n", err)
+				fmt.Printf("Unable to apply addons upgrade: %s\n", err)
 				os.Exit(1)
 			}
 		},

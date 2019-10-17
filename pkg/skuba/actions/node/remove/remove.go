@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientset "k8s.io/client-go/kubernetes"
+	"k8s.io/klog"
 	kubeadmconstants "k8s.io/kubernetes/cmd/kubeadm/app/constants"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/cni"
@@ -34,6 +35,11 @@ import (
 
 // Remove removes a node from the cluster
 func Remove(client clientset.Interface, target string, drainTimeout time.Duration) error {
+	if drainTimeout < 0 {
+		klog.Info("the passed duration was negative and will be ignored")
+		drainTimeout = 0
+	}
+
 	node, err := client.CoreV1().Nodes().Get(target, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "[remove-node] could not get node %s", target)

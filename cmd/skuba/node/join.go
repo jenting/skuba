@@ -18,8 +18,10 @@
 package node
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/cobra"
-	"k8s.io/klog"
 
 	"github.com/SUSE/skuba/internal/pkg/skuba/deployments"
 	"github.com/SUSE/skuba/internal/pkg/skuba/deployments/ssh"
@@ -43,7 +45,8 @@ func NewJoinCmd() *cobra.Command {
 		Short: "Joins a new node to the cluster",
 		Run: func(cmd *cobra.Command, nodenames []string) {
 			if err := validate.NodeName(nodenames[0]); err != nil {
-				klog.Fatal(err)
+				fmt.Printf("Unable to join a new node: %s\n", err)
+				os.Exit(1)
 			}
 
 			joinConfiguration := deployments.JoinConfiguration{
@@ -53,7 +56,8 @@ func NewJoinCmd() *cobra.Command {
 			joinConfiguration.Role = deployments.MustGetRoleFromString(joinOptions.role)
 
 			if err := node.Join(joinConfiguration, target.GetDeployment(nodenames[0])); err != nil {
-				klog.Fatalf("error joining node %s: %s", nodenames[0], err)
+				fmt.Printf("Unable to join a new node: %s\n", err)
+				os.Exit(1)
 			}
 		},
 		Args: cobra.ExactArgs(1),
