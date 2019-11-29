@@ -97,9 +97,8 @@ func CreateOrUpdateCertToSecret(
 		},
 		Type: v1.SecretTypeTLS,
 		Data: map[string][]byte{
-			v1.TLSCertKey:              pkiutil.EncodeCertPEM(cert),
-			v1.TLSPrivateKeyKey:        privateKey,
-			v1.ServiceAccountRootCAKey: pkiutil.EncodeCertPEM(caCert),
+			v1.TLSCertKey:       pkiutil.EncodeCertPEM(cert),
+			v1.TLSPrivateKeyKey: privateKey,
 		},
 	}
 

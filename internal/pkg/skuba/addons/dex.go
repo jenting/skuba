@@ -18,12 +18,13 @@
 package addons
 
 import (
+	"github.com/pkg/errors"
+	"k8s.io/kubernetes/cmd/kubeadm/app/images"
+
 	"github.com/SUSE/skuba/internal/pkg/skuba/dex"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
 	"github.com/SUSE/skuba/internal/pkg/skuba/skuba"
 	skubaconstants "github.com/SUSE/skuba/pkg/skuba"
-	"github.com/pkg/errors"
-	"k8s.io/kubernetes/cmd/kubeadm/app/images"
 )
 
 var gangwayClientSecret string
@@ -104,7 +105,6 @@ data:
       https: 0.0.0.0:32000
       tlsCert: /etc/dex/pki/tls.crt
       tlsKey: /etc/dex/pki/tls.key
-      tlsClientCA: /etc/dex/pki/ca.crt
 
     frontend:
       issuer: "SUSE CaaS Platform"

@@ -18,12 +18,13 @@
 package addons
 
 import (
+	"github.com/pkg/errors"
+	"k8s.io/kubernetes/cmd/kubeadm/app/images"
+
 	"github.com/SUSE/skuba/internal/pkg/skuba/gangway"
 	"github.com/SUSE/skuba/internal/pkg/skuba/kubernetes"
 	"github.com/SUSE/skuba/internal/pkg/skuba/skuba"
 	skubaconstants "github.com/SUSE/skuba/pkg/skuba"
-	"github.com/pkg/errors"
-	"k8s.io/kubernetes/cmd/kubeadm/app/images"
 )
 
 func init() {
@@ -114,7 +115,6 @@ data:
     usernameClaim: "email"
     apiServerURL: "https://{{.ControlPlaneHostAndPort}}"
     cluster_ca_path: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-    trustedCAPath: /etc/gangway/pki/ca.crt
     customHTMLTemplatesDir: /usr/share/caasp-gangway/web/templates/caasp
 ---
 apiVersion: apps/v1
