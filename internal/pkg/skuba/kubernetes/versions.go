@@ -37,6 +37,7 @@ const (
 	Dex           Addon = "dex"
 	Gangway       Addon = "gangway"
 	MetricsServer Addon = "metrics-server"
+	CertManager   Addon = "cert-manager"
 	PSP           Addon = "psp"
 
 	Kubelet          Component = "kubelet"
@@ -106,6 +107,7 @@ var (
 				Dex:           &AddonVersion{"2.23.0", 6},
 				Gangway:       &AddonVersion{"3.1.0-rev4", 4},
 				MetricsServer: &AddonVersion{"0.3.6", 0},
+				CertManager:   &AddonVersion{"0.15.1", 0},
 				PSP:           &AddonVersion{"", 2},
 			},
 		},
