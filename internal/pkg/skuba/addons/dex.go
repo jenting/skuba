@@ -159,6 +159,8 @@ metadata:
   labels:
     app: oidc-dex
     caasp.suse.com/skuba-replica-ha: "true"
+  annotations:
+    secret.reloader.stakater.com/reload: oidc-dex-cert
 spec:
   replicas: 3
   revisionHistoryLimit: 3

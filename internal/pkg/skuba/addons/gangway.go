@@ -136,6 +136,8 @@ metadata:
   labels:
     app: oidc-gangway
     caasp.suse.com/skuba-replica-ha: "true"
+  annotations:
+    secret.reloader.stakater.com/reload: oidc-gangway-cert
 spec:
   replicas: 3
   revisionHistoryLimit: 3

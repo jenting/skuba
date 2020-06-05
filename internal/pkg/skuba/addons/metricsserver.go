@@ -209,6 +209,8 @@ metadata:
   labels:
     app: metrics-server
     caasp.suse.com/skuba-replica-ha: "true"
+  annotations:
+    secret.reloader.stakater.com/reload: metrics-server-cert
 spec:
   replicas: 2
   revisionHistoryLimit: 3
