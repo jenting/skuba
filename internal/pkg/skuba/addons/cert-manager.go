@@ -91,7 +91,7 @@ kind: CustomResourceDefinition
 metadata:
   name: issuers.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -122,7 +122,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -1898,7 +1898,7 @@ kind: CustomResourceDefinition
 metadata:
   name: orders.acme.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -1933,7 +1933,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -2138,7 +2138,7 @@ kind: CustomResourceDefinition
 metadata:
   name: certificaterequests.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -2173,7 +2173,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -2349,7 +2349,7 @@ kind: CustomResourceDefinition
 metadata:
   name: certificates.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -2387,7 +2387,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -3105,7 +3105,7 @@ kind: CustomResourceDefinition
 metadata:
   name: challenges.acme.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -3139,7 +3139,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -4558,7 +4558,7 @@ kind: CustomResourceDefinition
 metadata:
   name: clusterissuers.cert-manager.io
   annotations:
-    cert-manager.io/inject-ca-from-secret: 'cert-manager/cert-manager-webhook-ca'
+    cert-manager.io/inject-ca-from-secret: 'kube-system/cert-manager-webhook-ca'
   labels:
     app: 'cert-manager'
     app.kubernetes.io/name: 'cert-manager'
@@ -4589,7 +4589,7 @@ spec:
     # webhookClientConfig is required when strategy is Webhook and it configures the webhook endpoint to be called by API server.
     webhookClientConfig:
       service:
-        namespace: 'cert-manager'
+        namespace: 'kube-system'
         name: 'cert-manager-webhook'
         path: /convert
   names:
@@ -6369,7 +6369,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cert-manager-cainjector
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: cainjector
     app.kubernetes.io/name: cainjector
@@ -6383,7 +6383,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cert-manager
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: cert-manager
     app.kubernetes.io/name: cert-manager
@@ -6397,7 +6397,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: cert-manager-webhook
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
@@ -6718,7 +6718,7 @@ roleRef:
   name: cert-manager-cainjector
 subjects:
   - name: cert-manager-cainjector
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6739,7 +6739,7 @@ roleRef:
   name: cert-manager-controller-orders
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6760,7 +6760,7 @@ roleRef:
   name: cert-manager-controller-clusterissuers
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6781,7 +6781,7 @@ roleRef:
   name: cert-manager-controller-certificates
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6802,7 +6802,7 @@ roleRef:
   name: cert-manager-controller-challenges
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6823,7 +6823,7 @@ roleRef:
   name: cert-manager-controller-issuers
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/rbac.yaml
@@ -6844,7 +6844,7 @@ roleRef:
   name: cert-manager-controller-ingress-shim
 subjects:
   - name: cert-manager
-    namespace: "cert-manager"
+    namespace: "kube-system"
     kind: ServiceAccount
 ---
 # Source: cert-manager/templates/cainjector-rbac.yaml
@@ -6903,7 +6903,7 @@ apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: Role
 metadata:
   name: cert-manager-webhook:dynamic-serving
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
@@ -6944,7 +6944,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: cert-manager-cainjector
-    namespace: cert-manager
+    namespace: kube-system
 ---
 # Source: cert-manager/templates/rbac.yaml
 # grant cert-manager permission to manage the leaderelection configmap in the
@@ -6969,14 +6969,14 @@ subjects:
   - apiGroup: ""
     kind: ServiceAccount
     name: cert-manager
-    namespace: cert-manager
+    namespace: kube-system
 ---
 # Source: cert-manager/templates/webhook-rbac.yaml
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: RoleBinding
 metadata:
   name: cert-manager-webhook:dynamic-serving
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
@@ -6992,14 +6992,14 @@ subjects:
 - apiGroup: ""
   kind: ServiceAccount
   name: cert-manager-webhook
-  namespace: cert-manager
+  namespace: kube-system
 ---
 # Source: cert-manager/templates/service.yaml
 apiVersion: v1
 kind: Service
 metadata:
   name: cert-manager
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: cert-manager
     app.kubernetes.io/name: cert-manager
@@ -7023,7 +7023,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: cert-manager-webhook
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
@@ -7047,7 +7047,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cert-manager-cainjector
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: cainjector
     app.kubernetes.io/name: cainjector
@@ -7093,7 +7093,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cert-manager
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: cert-manager
     app.kubernetes.io/name: cert-manager
@@ -7147,7 +7147,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cert-manager-webhook
-  namespace: "cert-manager"
+  namespace: "kube-system"
   labels:
     app: webhook
     app.kubernetes.io/name: webhook
@@ -7180,9 +7180,9 @@ spec:
           args:
           - --v=2
           - --secure-port=10250
-          - --dynamic-serving-ca-secret-namespace=cert-manager
+          - --dynamic-serving-ca-secret-namespace=kube-system
           - --dynamic-serving-ca-secret-name=cert-manager-webhook-ca
-          - --dynamic-serving-dns-names=cert-manager-webhook,cert-manager-webhook.cert-manager,cert-manager-webhook.cert-manager.svc
+          - --dynamic-serving-dns-names=cert-manager-webhook,cert-manager-webhook.kube-system,cert-manager-webhook.kube-system.svc
           ports:
           - name: https
             containerPort: 10250
@@ -7221,7 +7221,7 @@ metadata:
     app.kubernetes.io/component: "webhook"
     helm.sh/chart: cert-manager-v0.15.1
   annotations:
-    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-ca"
+    cert-manager.io/inject-ca-from-secret: "kube-system/cert-manager-webhook-ca"
 webhooks:
   - name: webhook.cert-manager.io
     rules:
@@ -7242,7 +7242,7 @@ webhooks:
     clientConfig:
       service:
         name: cert-manager-webhook
-        namespace: "cert-manager"
+        namespace: "kube-system"
         path: /mutate
 ---
 # Source: cert-manager/templates/webhook-validating-webhook.yaml
@@ -7258,7 +7258,7 @@ metadata:
     app.kubernetes.io/component: "webhook"
     helm.sh/chart: cert-manager-v0.15.1
   annotations:
-    cert-manager.io/inject-ca-from-secret: "cert-manager/cert-manager-webhook-ca"
+    cert-manager.io/inject-ca-from-secret: "kube-system/cert-manager-webhook-ca"
 webhooks:
   - name: webhook.cert-manager.io
     namespaceSelector:
@@ -7270,7 +7270,7 @@ webhooks:
       - key: "name"
         operator: "NotIn"
         values:
-        - cert-manager
+        - kube-system
     rules:
       - apiGroups:
           - "cert-manager.io"
@@ -7289,7 +7289,7 @@ webhooks:
     clientConfig:
       service:
         name: cert-manager-webhook
-        namespace: "cert-manager"
+        namespace: "kube-system"
         path: /validate
 `
 )
