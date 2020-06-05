@@ -38,6 +38,7 @@ const (
 	Gangway       Addon = "gangway"
 	MetricsServer Addon = "metrics-server"
 	CertManager   Addon = "cert-manager"
+	Reloader      Addon = "reloader"
 	PSP           Addon = "psp"
 
 	Kubelet          Component = "kubelet"
@@ -108,6 +109,7 @@ var (
 				Gangway:       &AddonVersion{"3.1.0-rev4", 4},
 				MetricsServer: &AddonVersion{"0.3.6", 0},
 				CertManager:   &AddonVersion{"0.15.1", 0},
+				Reloader:      &AddonVersion{"0.0.58", 0},
 				PSP:           &AddonVersion{"", 2},
 			},
 		},
