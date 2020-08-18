@@ -49,30 +49,6 @@ metadata:
   name: kucero
   namespace: kube-system
 ---
-apiVersion: policy/v1beta1
-kind: PodSecurityPolicy
-metadata:
-  name: kucero
-spec:
-  allowedHostPaths:
-  - pathPrefix: /etc/kubernetes/pki
-    readOnly: true
-  - pathPrefix: /var/lib/kubelet/pki
-    readOnly: true
-  fsGroup:
-    rule: RunAsAny
-  hostPID: true
-  privileged: true
-  runAsUser:
-    rule: RunAsAny
-  seLinux:
-    rule: RunAsAny
-  supplementalGroups:
-    rule: RunAsAny
-  volumes:
-  - secret
-  - hostPath
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -147,14 +123,6 @@ rules:
   verbs:
   - create
 - apiGroups:
-  - extensions
-  resourceNames:
-  - kucero
-  resources:
-  - podsecuritypolicies
-  verbs:
-  - use
-- apiGroups:
   - certificates.k8s.io
   resourceNames:
   - kubernetes.io/kubelet-serving
@@ -215,11 +183,11 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: kucero
+  name: suse:caasp:psp:kucero
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: kucero
+  name: suse:caasp:psp:privileged
 subjects:
 - kind: ServiceAccount
   name: kucero
